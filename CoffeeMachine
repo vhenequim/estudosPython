@@ -1,0 +1,89 @@
+# Coffee Machine Project :p
+# Will create a lot of functions to check if everything is going fine in the machine.
+
+
+def check_request(request):
+    """Checks the type of coffee being requested. If user commits a typo the program will ask again for the type"""
+    if request == 'latte':
+        return 2
+    elif request == 'espresso':
+        return 1
+    elif request == 'cappuccino':
+        return 3
+    else:
+        return 0
+
+
+def coffee_machine(amounts_reserves) -> object:
+    """Main function of the program"""
+    amounts = amounts_reserves[:]
+    request = input("what would you like? espresso/latte/cappuccino ")
+    if request == 'report':
+        print(f"Water: {amounts[0]}ml\nMilk: {amounts[1]}ml\nCoffee: {amounts[2]}g\nMoney: ${amounts[3]}")
+        return amounts
+    elif request == 'off':
+        print ("Machine off for maintenance")
+        return 0
+    else:
+        while check_request(request) == 0:
+            request = input("Invalid input. Please try again. espresso/latte/cappuccino ")
+    coffee_type = check_request(request)
+    new_amounts = amounts_modifier(coffee_type, amounts)
+    if new_amounts == amounts:
+        return new_amounts
+    money_input = coin_counter()
+    if change_calc(coffee_type, money_input) < 0:
+        new_amounts = amounts[:]
+    else:
+        print (f"Here's your {request}!")
+    return new_amounts
+# Espresso: 50ml water, 18g coffee, 1,50; Latte: 200ml water, 24g coffee, 150ml milk, 250
+# Cappuccino: 250ml water, 24g coffee, 100ml milk, 3,00
+
+
+
+def amounts_modifier(coffee_type, amounts):
+    """Modifies and checks the resources the machine have based on coffee type"""
+    # I can change the repeating in this function by using a dictionary, will change it in the future
+    # Just did it, but used a matrix, way easier to use IMO
+    # Having second thoughts about making a double function like that, could have made two different ones
+    new_amounts = amounts[:]
+    resources = ['water', 'milk', 'coffee']
+    amounts_difference = [[-50, 0, -18, 1.5],[-200, -150, -24, 2.5], [-250, -100, -24, 3.00]]
+    for x in range(4):
+        new_amounts[x] += amounts_difference[coffee_type-1][x]
+        for i in range(3):
+            if new_amounts[i] < 0:
+                print (f"Sorry, not enough {resources[i]}")
+                return amounts
+    return new_amounts
+
+# quarters = $0.25, dimes = $0.10, nickles = $0.05, pennies = $0.01
+def coin_counter():
+    """Counts the amount of coins and therefore money inputted by the consumer"""
+    coin_types = [['quarters', 'dimes', 'nickles', 'pennies'],[0.25, 0.1, 0.05, 0.01]]
+    money_input = 0
+    for i in range (4):
+        money_input += coin_types[1][i]*int(input(f"How many {coin_types[0][i]}?"))
+    return money_input
+
+
+def change_calc(coffee_type, money_input):
+    coffee_prices = [1.5, 2.5, 3]
+    change = money_input - coffee_prices[coffee_type - 1]
+    if not change < 0:
+        print (f"Your change will be ${round(change, 2)}")
+        return change
+    else:
+        print ("Not enough money. Refunding...")
+        return 0
+
+
+power = 1
+amounts_reserves = [300, 200, 100, 0]
+while power != 0:
+    new_amounts = coffee_machine(amounts_reserves)
+    if new_amounts == 0:
+        power = 0
+    else:
+        amounts_reserves = new_amounts[:]
