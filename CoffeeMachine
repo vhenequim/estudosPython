@@ -14,34 +14,36 @@ def check_request(request):
         return 0
 
 
-def coffee_machine(amounts_reserves) -> object:
+def coffee_machine(amounts_reserve) -> object:
     """Main function of the program"""
-    amounts = amounts_reserves[:]
+    amounts = amounts_reserve[:]
     request = input("what would you like? espresso/latte/cappuccino ")
     if request == 'report':
         print(f"Water: {amounts[0]}ml\nMilk: {amounts[1]}ml\nCoffee: {amounts[2]}g\nMoney: ${amounts[3]}")
         return amounts
     elif request == 'off':
-        print ("Machine off for maintenance")
+        print("Machine off for maintenance")
         return 0
     else:
         while check_request(request) == 0:
             request = input("Invalid input. Please try again. espresso/latte/cappuccino ")
     coffee_type = check_request(request)
     new_amounts = amounts_modifier(coffee_type, amounts)
+    # Had to make some shenanigans due to using the same function to validate and change the amount of resources
+    # In this case right here, if things continue the same it means the validation fails, so i have to kill the
+    # function and return what would be the "old" values.
     if new_amounts == amounts:
-        return new_amounts
+        return amounts
     money_input = coin_counter()
     if change_calc(coffee_type, money_input) < 0:
-        new_amounts = amounts[:]
+        new_amounts = amounts[:] # Made a copy here because wasn't confident on letting it be attached to one another
     else:
         print (f"Here's your {request}!")
     return new_amounts
+
+
 # Espresso: 50ml water, 18g coffee, 1,50; Latte: 200ml water, 24g coffee, 150ml milk, 250
 # Cappuccino: 250ml water, 24g coffee, 100ml milk, 3,00
-
-
-
 def amounts_modifier(coffee_type, amounts):
     """Modifies and checks the resources the machine have based on coffee type"""
     # I can change the repeating in this function by using a dictionary, will change it in the future
@@ -58,6 +60,7 @@ def amounts_modifier(coffee_type, amounts):
                 return amounts
     return new_amounts
 
+
 # quarters = $0.25, dimes = $0.10, nickles = $0.05, pennies = $0.01
 def coin_counter():
     """Counts the amount of coins and therefore money inputted by the consumer"""
@@ -69,6 +72,7 @@ def coin_counter():
 
 
 def change_calc(coffee_type, money_input):
+    """Checks if there is enough money and if there is change"""
     coffee_prices = [1.5, 2.5, 3]
     change = money_input - coffee_prices[coffee_type - 1]
     if not change < 0:
