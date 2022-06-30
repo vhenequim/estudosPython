@@ -3,8 +3,8 @@ import datetime as dt
 import smtplib
 import random
 
-MY_EMAIL = "vhenequim@gmail.com"
-MY_PASSWORD = "cqbfhdyrvtdojraj"
+MY_EMAIL = ""
+MY_PASSWORD = ""
 
 today = dt.datetime.now()
 today_tuple = (today.month, today.day)
